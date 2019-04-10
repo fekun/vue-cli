@@ -13,10 +13,17 @@ program
     .version('1.2.4')
     .command('create <dir>')
     .option("-y, --yield", "automatically install dependancy")
+    .option("-j, --jsx", "create project which use jsx syntax in component")
     .action(async function (dir, options) {
-        spinner.start("正在创建项目...")
-        await downloadRepo('fekun/vue-cli-template#master', dir)
-        spinner.succeed("项目创建成功")
+        if(!options.jsx) {
+            spinner.start("正在创建项目...")
+            await downloadRepo('fekun/vue-cli-template#master', dir)
+            spinner.succeed("项目创建成功")
+        }else {
+            spinner.start("正在创建项目...")
+            await downloadRepo('fekun/vue-cli-template#jsx', dir)
+            spinner.succeed("项目创建成功")
+        }
         if (options.yield) {
             spinner.start("正在安装依赖...")
             let { stdout, stderr } = await installDependancy(dir)
