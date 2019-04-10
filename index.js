@@ -10,7 +10,7 @@ const fs = require("fs")
 const spinner = ora()
 // a command of creating a project
 program
-    .version('1.2.3')
+    .version('1.2.4')
     .command('create <dir>')
     .option("-y, --yield", "automatically install dependancy")
     .action(async function (dir, options) {
