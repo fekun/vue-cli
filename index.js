@@ -10,7 +10,7 @@ const fs = require("fs")
 const spinner = ora()
 // a command of creating a project
 program
-    .version('1.2.4')
+    .version('1.2.5')
     .command('create <dir>')
     .option("-y, --yield", "automatically install dependancy")
     .option("-j, --jsx", "create project which use jsx syntax in component")
