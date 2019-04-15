@@ -1,6 +1,6 @@
 {
   "name": "@enhezzz/vue-cli",
-  "version": "1.2.6",
+  "version": "1.2.9",
   "author": "enhezzz <13450737557@163.com>",
   "description": "",
   "keywords": [
@@ -12,6 +12,7 @@
     "commander": "^2.20.0",
     "download-git-repo": "^1.1.0",
     "execa": "^1.0.0",
+    "inquirer": "^6.3.1",
     "ora": "^3.4.0"
   },
   "devDependencies": {},

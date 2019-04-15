@@ -7,24 +7,75 @@ const execa = require('execa');
 const path = require("path")
 const util = require("util")
 const fs = require("fs")
+const inquirer = require('inquirer');
 const spinner = ora()
+const {version} = require("./package")
 // a command of creating a project
 program
-    .version('1.2.5')
+    .version(version)
     .command('create <dir>')
-    .option("-y, --yield", "automatically install dependancy")
-    .option("-j, --jsx", "create project which use jsx syntax in component")
     .action(async function (dir, options) {
-        if(!options.jsx) {
+        let answers = await inquirer.prompt([
+            /* Pass your questions in here */
+            {
+                type: "list",
+                message: "选择你需要生成的项目的组件类型",
+                name: "syntax",
+                choices: [
+                    {
+                        name: "单文件组件",
+                        value: "sfc",
+                        short: "单文件组件"
+                    },
+                    {
+                        name: "jsx组件",
+                        value: "jsx",
+                        short: "jsx组件"
+                    }
+                ]
+            },
+            {
+                type: "list",
+                message: "选择你项目的目标终端",
+                name: "target",
+                choices: [
+                    {
+                        name: "pc端",
+                        value: "pc",
+                        short: "pc端"
+                    },
+                    {
+                        name: "移动端",
+                        value: "mobile",
+                        short: "移动端"
+                    }
+                ]
+            },
+            {
+                type: "confirm",
+                name: "yield",
+                message: "需要自动安装依赖吗",
+                default: true
+            }
+        ])
+        if (answers.syntax === "sfc" && answers.target === "pc") {
             spinner.start("正在创建项目...")
             await downloadRepo('fekun/vue-cli-template#master', dir)
             spinner.succeed("项目创建成功")
-        }else {
+        } else if (answers.syntax === "jsx" && answers.target === "pc") {
             spinner.start("正在创建项目...")
             await downloadRepo('fekun/vue-cli-template#jsx', dir)
             spinner.succeed("项目创建成功")
-        }
-        if (options.yield) {
+        } else if (answers.syntax === "sfc" && answers.target === "mobile") {
+            spinner.start("正在创建项目...")
+            await downloadRepo('fekun/vue-cli-template#master-mobile', dir)
+            spinner.succeed("项目创建成功")
+        } else if (answers.syntax === "jsx" && answers.target === "mobile") {
+            spinner.start("正在创建项目...")
+            await downloadRepo('fekun/vue-cli-template#jsx-mobile', dir)
+            spinner.succeed("项目创建成功")
+        } 
+        if (answers.yield) {
             spinner.start("正在安装依赖...")
             let { stdout, stderr } = await installDependancy(dir)
             spinner.succeed("依赖安装完成")
