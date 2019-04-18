@@ -9,12 +9,7 @@ npm i -g @enhezzz/vue-cli
 
 > 创建项目
 
-cheese-vue create \<dirName\> [--jsx] [-y]
-
-options:
-
-*   -y || --yield (如果输入-y选项将自动安装相关依赖)
-*   -j || --jsx (生成jsx样式组件，默认vue单文件组件)
+cheese-vue create \<dirName\>
 
 
 > 新建文件
