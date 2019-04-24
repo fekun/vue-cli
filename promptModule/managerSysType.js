@@ -3,7 +3,28 @@ const path = require("path")
 const fs = require("fs")
 const util = require("util")
 const writeFile = util.promisify(fs.writeFile)
+const readFile = util.promisify(fs.readFile)
 module.exports = async function(dir, pkgName) {
+    let main
+    try {
+        let templatePath = path.join(__dirname, `../template/${pkgName}.js`)
+        readFile(templatePath)
+            .then(result=> {
+                let targetPath = path.resolve(dir, "src", "main.js")
+                writeFile(targetPath, result)
+                    .then(()=> {
+
+                    }).catch(err=> {
+                        console.error(err)
+                        console.error("更新main.js出错")
+                    })
+            }).catch(err=> {
+                console.error(err)
+                console.error("读取ui模板文件出错")
+            }) 
+    }catch(err) {
+        console.error(err)
+    }
     let version;
     try {
         let res = await getVersion(pkgName)
@@ -25,5 +46,6 @@ module.exports = async function(dir, pkgName) {
     }catch(err) {
         console.error(err)
     }
+    
     
 }

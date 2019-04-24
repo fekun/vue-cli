@@ -73,6 +73,11 @@ program
                         short: "Ant Design"
                     },
                     {
+                        name: "iview",
+                        value: "iview",
+                        short: "iview"
+                    },
+                    {
                         name: "element-ui",
                         value: "element-ui",
                         short: "element-ui"
