@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-const download = require("download-git-repo")
 const program = require('commander');
 const ora = require('ora');
-const execa = require('execa');
 const path = require("path")
 const util = require("util")
 const fs = require("fs")
@@ -12,6 +10,9 @@ const spinner = ora()
 const {version} = require("./package")
 const target = require("./promptModule/target")
 const addManagerSysModule = require("./promptModule/managerSysType")
+const defaultSetting = require('./setting')
+const downloadRepo = require('./util/downloadRepo')
+const installDependancy = require('./util/installDependancy')
 // a command of creating a project
 program
     .version(version)
@@ -20,42 +21,8 @@ program
         let answers = await inquirer.prompt([
             /* Pass your questions in here */
             {
-                type: "list",
-                message: "选择你需要生成的项目的组件类型",
-                name: "syntax",
-                choices: [
-                    {
-                        name: "单文件组件",
-                        value: "sfc",
-                        short: "单文件组件"
-                    },
-                    {
-                        name: "jsx组件",
-                        value: "jsx",
-                        short: "jsx组件"
-                    }
-                ]
-            },
-            {
-                type: "list",
-                message: "选择你项目的目标终端",
-                name: "target",
-                choices: [
-                    {
-                        name: "pc端",
-                        value: "pc",
-                        short: "pc端"
-                    },
-                    {
-                        name: "移动端",
-                        value: "mobile",
-                        short: "移动端"
-                    }
-                ]
-            },
-            {
                 type: "confirm",
-                message: "需要添加后台管理系统模块吗",
+                message: "是否是后台管理系统",
                 name: "isManagerSys",
                 default: true
             },
@@ -78,12 +45,53 @@ program
                         short: "iview"
                     },
                     {
-                        name: "element-ui",
+                        name: "element-ui(目前支持)",
                         value: "element-ui",
                         short: "element-ui"
                     }
                 ]
             },
+            {
+                type: "list",
+                message: "选择你需要生成的项目的组件类型",
+                name: "syntax",
+                when: function(answers) {
+                    return !answers.isManagerSys
+                },
+                choices: [
+                    {
+                        name: "单文件组件",
+                        value: "sfc",
+                        short: "单文件组件"
+                    },
+                    {
+                        name: "jsx组件",
+                        value: "jsx",
+                        short: "jsx组件"
+                    }
+                ]
+            },
+            {
+                type: "list",
+                message: "选择你项目的目标终端",
+                name: "target",
+                when: function(answers) {
+                    return !answers.isManagerSys
+                },
+                choices: [
+                    {
+                        name: "pc端",
+                        value: "pc",
+                        short: "pc端"
+                    },
+                    {
+                        name: "移动端",
+                        value: "mobile",
+                        short: "移动端"
+                    }
+                ]
+            },
+           
             {
                 type: "confirm",
                 name: "yield",
@@ -101,41 +109,22 @@ program
         // } else if (answers.syntax === "jsx" && answers.target === "mobile") {
         //     await downloadRepo('fekun/vue-cli-template#jsx-mobile', dir)
         // } 
-        if (answers.syntax === "sfc") {
-            await downloadRepo('fekun/vue-cli-template#master', dir)
-        } else if (answers.syntax === "jsx") {
-            await downloadRepo('fekun/vue-cli-template#jsx', dir)
-        }
-        if(answers.target === "mobile") {
-            await target(dir)
-        }
         if(answers.isManagerSys) {
-            addManagerSysModule(dir, answers.managerSysType)
+             await addManagerSysModule(answers.managerSysType, dir)
+        }else {
+            if (answers.syntax === "sfc") {
+                await downloadRepo(`${defaultSetting.repo}#master`, dir)
+            } else if (answers.syntax === "jsx") {
+                await downloadRepo(`${defaultSetting.repo}#jsx`, dir)
+            }
+            if(answers.target === "mobile") {
+                await target(dir)
+            }
         }
         if (answers.yield) {
                 await installDependancy(dir)
         }
     })
-async function downloadRepo(repoAddr, dirName) {
-    let _download = util.promisify(download)
-    spinner.start("正在创建项目...")
-    await _download(repoAddr, dirName)
-    spinner.succeed("项目创建成功")
-}
-async function installDependancy(dirName) {
-    spinner.start("正在安装依赖...")
-    let dirPath = path.resolve(process.cwd(), dirName)
-    try {
-        await execa("npm", ["i"], {
-            cwd: dirPath,
-            stdio: ['pipe', 'pipe', 'pipe']
-        })
-        spinner.succeed("依赖安装完成")
-    }catch(err) {
-        spinner.fail("依赖安装失败")
-        console.log(err)
-    }   
-}
 
 
 // a command of creating a file by template
